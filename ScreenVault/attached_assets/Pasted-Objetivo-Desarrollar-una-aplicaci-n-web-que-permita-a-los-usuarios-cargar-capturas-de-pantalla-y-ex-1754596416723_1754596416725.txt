@@ -1,0 +1,53 @@
+Objetivo: Desarrollar una aplicación web que permita a los usuarios cargar capturas de pantalla y extraer los datos contenidos en ellas, generando archivos descargables en formato CSV o JSON sin necesidad de registro ni inicio de sesión.
+
+🎯 Funcionalidades clave:
+Cargar imágenes de forma sencilla:
+
+Opción para subir una sola imagen (formatos: .png, .jpg, .jpeg).
+
+Opción para subir una carpeta completa con múltiples imágenes.
+
+Validación de formatos de archivo para asegurarse de que solo se suban imágenes válidas.
+
+Indicaciones claras y visibles en cada sección, como:
+
+"Sube aquí una sola captura".
+
+"Sube aquí una carpeta completa con capturas".
+
+Extracción de datos de las imágenes:
+
+Usar tecnología OCR (Reconocimiento Óptico de Caracteres) para leer el contenido de las capturas de pantalla.
+
+Generar archivos descargables en CSV y JSON con los datos extraídos.
+
+Visualización y descarga:
+
+Una vez procesadas las imágenes, el usuario será redirigido a una nueva página donde podrá ver los datos extraídos en un formato de tabla.
+
+Opción de descargar los datos en formato CSV o JSON de manera sencilla.
+
+Diseño atractivo y funcional, fácil de navegar.
+
+Interfaz de usuario (UI):
+
+Sin necesidad de registro: El usuario no necesita crear una cuenta o iniciar sesión para usar la plataforma.
+
+Interfaz intuitiva, limpia y amigable, con colores modernos y llamativos.
+
+Compatible con dispositivos móviles (diseño responsive).
+
+Instrucciones claras durante todo el proceso, para que el usuario sepa exactamente qué hacer.
+
+Extras recomendados:
+
+Barra de progreso visible mientras se cargan las imágenes.
+
+Mensajes de error amigables si se sube un archivo incorrecto.
+
+Resultados rápidos: Proceso eficiente para que los usuarios no esperen mucho tiempo.
+
+📝 Requisitos adicionales:
+La aplicación debe ser robusta para manejar múltiples archivos de forma eficiente.
+
+No requiere registro ni login, pero si en el futuro decides agregar características como el historial de archivos o funciones avanzadas, se puede considerar el uso de un sistema de cuentas.

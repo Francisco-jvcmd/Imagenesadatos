@@ -1,0 +1,507 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Extractor - Convierte tus capturas en datos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1976D2',
+                        'primary-dark': '#1565C0',
+                        secondary: '#388E3C',
+                        'secondary-dark': '#2E7D32',
+                        surface: '#FAFAFA',
+                        error: '#D32F2F'
+                    },
+                    fontFamily: {
+                        'roboto': ['Roboto', 'sans-serif']
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                        'pulse-slow': 'pulse 3s infinite'
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="font-roboto bg-surface min-h-screen">
+    <!-- @COMPONENT: AppHeader -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <span class="material-icons text-primary text-3xl mr-3">document_scanner</span>
+                    <h1 class="text-xl font-bold text-gray-900">OCR Extractor</h1>
+                </div>
+                <div class="hidden md:flex items-center space-x-4 text-sm text-gray-600">
+                    <span class="flex items-center">
+                        <span class="material-icons text-secondary mr-1 text-sm">check_circle</span>
+                        Sin registro requerido
+                    </span>
+                    <span class="flex items-center">
+                        <span class="material-icons text-secondary mr-1 text-sm">speed</span>
+                        Procesamiento rápido
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: AppHeader -->
+
+    <!-- @COMPONENT: MainContent -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- @COMPONENT: HeroSection -->
+        <section class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Convierte tus capturas de pantalla en datos estructurados
+            </h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+                Sube tus imágenes y extrae automáticamente el texto utilizando tecnología OCR avanzada. 
+                Descarga los resultados en formato CSV o JSON de manera instantánea.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+                <span class="flex items-center">
+                    <span class="material-icons mr-1 text-sm">image</span>
+                    PNG, JPG, JPEG
+                </span>
+                <span class="flex items-center">
+                    <span class="material-icons mr-1 text-sm">folder</span>
+                    Procesamiento por lotes
+                </span>
+                <span class="flex items-center">
+                    <span class="material-icons mr-1 text-sm">download</span>
+                    CSV & JSON
+                </span>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: HeroSection -->
+
+        <!-- @STATE: uploadMode:string = 'single', processingState:string = 'idle', results:array = [] -->
+        
+        <!-- @COMPONENT: UploadOptionsSection -->
+        <section id="upload-section" class="grid md:grid-cols-2 gap-8 mb-12">
+            <!-- Single Image Upload -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border-2 border-dashed border-gray-200 hover:border-primary transition-colors duration-300">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons text-primary text-2xl">add_photo_alternate</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Imagen Individual</h3>
+                    <p class="text-gray-600 mb-6">Sube aquí una sola captura de pantalla</p>
+                    
+                    <!-- @COMPONENT: SingleFileUpload -->
+                    <div class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-primary transition-colors cursor-pointer" 
+                         data-upload-type="single" 
+                         data-implementation="Implement drag&drop and file selection for single images">
+                        <input type="file" id="single-upload" accept=".png,.jpg,.jpeg" class="hidden" data-mock="true">
+                        <span class="material-icons text-4xl text-gray-400 mb-2">cloud_upload</span>
+                        <p class="text-gray-500 mb-2">Arrastra tu imagen aquí o</p>
+                        <button class="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                                data-event="click:openFileDialog">
+                            Seleccionar archivo
+                        </button>
+                        <p class="text-xs text-gray-400 mt-2">Máximo 10MB • PNG, JPG, JPEG</p>
+                    </div>
+                    <!-- @END_COMPONENT: SingleFileUpload -->
+                </div>
+            </div>
+
+            <!-- Multiple Images Upload -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border-2 border-dashed border-gray-200 hover:border-secondary transition-colors duration-300">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons text-secondary text-2xl">photo_library</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Múltiples Imágenes</h3>
+                    <p class="text-gray-600 mb-6">Sube aquí una carpeta completa con capturas</p>
+                    
+                    <!-- @COMPONENT: MultipleFileUpload -->
+                    <div class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-secondary transition-colors cursor-pointer"
+                         data-upload-type="multiple"
+                         data-implementation="Implement multiple file selection and folder upload">
+                        <input type="file" id="multiple-upload" accept=".png,.jpg,.jpeg" multiple class="hidden" data-mock="true">
+                        <span class="material-icons text-4xl text-gray-400 mb-2">folder_open</span>
+                        <p class="text-gray-500 mb-2">Arrastra múltiples imágenes o</p>
+                        <button class="bg-secondary hover:bg-secondary-dark text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                                data-event="click:openMultipleFileDialog">
+                            Seleccionar carpeta
+                        </button>
+                        <p class="text-xs text-gray-400 mt-2">Hasta 50 archivos • PNG, JPG, JPEG</p>
+                    </div>
+                    <!-- @END_COMPONENT: MultipleFileUpload -->
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: UploadOptionsSection -->
+
+        <!-- @COMPONENT: ProcessingSection [hidden by default] -->
+        <section id="processing-section" class="hidden mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span class="material-icons text-primary text-4xl animate-spin">hourglass_empty</span>
+                </div>
+                <h3 class="text-2xl font-semibold text-gray-900 mb-4">Procesando tus imágenes</h3>
+                <p class="text-gray-600 mb-6">Estamos extrayendo el texto de tus capturas utilizando OCR...</p>
+                
+                <!-- @COMPONENT: ProgressBar -->
+                <div class="max-w-md mx-auto mb-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span data-bind="currentFile">Procesando imagen 1 de 3</span>
+                        <span data-bind="progress">65%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-primary h-3 rounded-full transition-all duration-500" 
+                             style="width: 65%" 
+                             data-bind="progressWidth"></div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: ProgressBar -->
+                
+                <div class="text-sm text-gray-500">
+                    <p>⏱️ Tiempo estimado restante: <span data-bind="estimatedTime">2 minutos</span></p>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: ProcessingSection -->
+
+        <!-- @COMPONENT: ResultsSection [hidden by default] -->
+        <section id="results-section" class="hidden">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <!-- Results Header -->
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900">Datos Extraídos</h3>
+                            <p class="text-sm text-gray-600">
+                                <span data-bind="processedCount">3</span> imágenes procesadas • 
+                                <span data-bind="extractedEntries">127</span> entradas de texto extraídas
+                            </p>
+                        </div>
+                        
+                        <!-- @COMPONENT: DownloadButtons -->
+                        <div class="flex gap-3">
+                            <button class="flex items-center bg-secondary hover:bg-secondary-dark text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                                    data-event="click:downloadCSV">
+                                <span class="material-icons mr-2 text-sm">table_chart</span>
+                                Descargar CSV
+                            </button>
+                            <button class="flex items-center bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                                    data-event="click:downloadJSON">
+                                <span class="material-icons mr-2 text-sm">code</span>
+                                Descargar JSON
+                            </button>
+                        </div>
+                        <!-- @END_COMPONENT: DownloadButtons -->
+                    </div>
+                </div>
+
+                <!-- @COMPONENT: DataTable -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Archivo de Origen
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Texto Extraído
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Confianza
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Línea
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- @MAP: extractedData.map(item => ( -->
+                            <tr class="hover:bg-gray-50" data-mock="true">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <span class="material-icons text-gray-400 mr-2">image</span>
+                                        <span class="text-sm font-medium text-gray-900" data-bind="item.filename">captura_1.png</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 max-w-md truncate" data-bind="item.text">
+                                        Factura No: 12345 - Total: $1,250.00 - Fecha: 15/01/2024
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" data-bind="item.confidence">
+                                        95%
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-bind="item.line">1</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50" data-mock="true">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <span class="material-icons text-gray-400 mr-2">image</span>
+                                        <span class="text-sm font-medium text-gray-900">captura_1.png</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 max-w-md truncate">
+                                        Cliente: Juan Pérez - Dirección: Av. Principal 123
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        92%
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50" data-mock="true">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <span class="material-icons text-gray-400 mr-2">image</span>
+                                        <span class="text-sm font-medium text-gray-900">screenshot_2.jpg</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 max-w-md truncate">
+                                        Nombre: Ana García - Email: ana.garcia@email.com
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        87%
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1</td>
+                            </tr>
+                            <!-- @END_MAP )) -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- @END_COMPONENT: DataTable -->
+
+                <!-- Pagination (if needed for large datasets) -->
+                <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            Mostrando <span class="font-medium" data-bind="startIndex">1</span> a 
+                            <span class="font-medium" data-bind="endIndex">10</span> de 
+                            <span class="font-medium" data-bind="totalEntries">127</span> resultados
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+                                    data-event="click:previousPage">
+                                Anterior
+                            </button>
+                            <button class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+                                    data-event="click:nextPage">
+                                Siguiente
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- @COMPONENT: NewProcessButton -->
+            <div class="text-center mt-8">
+                <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors border border-gray-300"
+                        data-event="click:startNewProcess">
+                    <span class="material-icons mr-2 text-sm">refresh</span>
+                    Procesar nuevas imágenes
+                </button>
+            </div>
+            <!-- @END_COMPONENT: NewProcessButton -->
+        </section>
+        <!-- @END_COMPONENT: ResultsSection -->
+
+        <!-- @COMPONENT: FeaturesSection -->
+        <section class="mt-16 mb-12">
+            <h3 class="text-2xl font-bold text-center text-gray-900 mb-8">¿Por qué elegir OCR Extractor?</h3>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons text-primary text-2xl">speed</span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Procesamiento Rápido</h4>
+                    <p class="text-gray-600">Tecnología OCR avanzada que procesa tus imágenes en segundos, no minutos.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons text-secondary text-2xl">security</span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Privacidad Total</h4>
+                    <p class="text-gray-600">Sin registro requerido. Tus datos se procesan de forma segura y no se almacenan.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons text-yellow-600 text-2xl">file_download</span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Múltiples Formatos</h4>
+                    <p class="text-gray-600">Descarga tus datos en CSV para Excel o JSON para desarrollo y análisis.</p>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: FeaturesSection -->
+    </main>
+    <!-- @END_COMPONENT: MainContent -->
+
+    <!-- @COMPONENT: ErrorToast [hidden by default] -->
+    <div id="error-toast" class="hidden fixed bottom-4 right-4 bg-error text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <div class="flex items-center">
+            <span class="material-icons mr-2">error</span>
+            <span data-bind="errorMessage">Error al procesar el archivo. Asegúrate de que sea una imagen válida.</span>
+            <button class="ml-4 text-white hover:text-gray-200" data-event="click:closeErrorToast">
+                <span class="material-icons text-sm">close</span>
+            </button>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: ErrorToast -->
+
+    <!-- @COMPONENT: SuccessToast [hidden by default] -->
+    <div id="success-toast" class="hidden fixed bottom-4 right-4 bg-secondary text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <div class="flex items-center">
+            <span class="material-icons mr-2">check_circle</span>
+            <span data-bind="successMessage">¡Procesamiento completado exitosamente!</span>
+            <button class="ml-4 text-white hover:text-gray-200" data-event="click:closeSuccessToast">
+                <span class="material-icons text-sm">close</span>
+            </button>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: SuccessToast -->
+
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-gray-600">
+                <p class="mb-2">OCR Extractor - Convierte tus capturas en datos estructurados</p>
+                <p class="text-sm">Tecnología OCR avanzada • Sin registro • Descarga inmediata</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // TODO: Implement OCR processing, file upload handling, and data export functionality
+        
+        (function() {
+            // Basic UI interaction demo - NOT functional business logic
+            const uploadZones = document.querySelectorAll('.upload-zone');
+            const processingSection = document.getElementById('processing-section');
+            const resultsSection = document.getElementById('results-section');
+            const uploadSection = document.getElementById('upload-section');
+
+            // Drag and drop visual feedback
+            uploadZones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('border-primary', 'bg-primary/5');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('border-primary', 'bg-primary/5');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('border-primary', 'bg-primary/5');
+                    // TODO: Handle file drop logic
+                });
+
+                zone.addEventListener('click', () => {
+                    const uploadType = zone.dataset.uploadType;
+                    const fileInput = uploadType === 'single' ? 
+                        document.getElementById('single-upload') : 
+                        document.getElementById('multiple-upload');
+                    fileInput.click();
+                });
+            });
+
+            // File input change handlers
+            document.getElementById('single-upload').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    // TODO: Validate file type and size
+                    simulateProcessing();
+                }
+            });
+
+            document.getElementById('multiple-upload').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    // TODO: Validate multiple files
+                    simulateProcessing();
+                }
+            });
+
+            // Demo processing simulation (NOT real functionality)
+            function simulateProcessing() {
+                uploadSection.classList.add('hidden');
+                processingSection.classList.remove('hidden');
+                
+                // Simulate progress
+                let progress = 0;
+                const progressBar = processingSection.querySelector('[data-bind="progressWidth"]');
+                const progressText = processingSection.querySelector('[data-bind="progress"]');
+                
+                const interval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            processingSection.classList.add('hidden');
+                            resultsSection.classList.remove('hidden');
+                        }, 1000);
+                    }
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = Math.round(progress) + '%';
+                }, 200);
+            }
+
+            // Toast notifications
+            function showErrorToast(message) {
+                const toast = document.getElementById('error-toast');
+                const messageSpan = toast.querySelector('[data-bind="errorMessage"]');
+                messageSpan.textContent = message;
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.add('hidden'), 5000);
+            }
+
+            function showSuccessToast(message) {
+                const toast = document.getElementById('success-toast');
+                const messageSpan = toast.querySelector('[data-bind="successMessage"]');
+                messageSpan.textContent = message;
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.add('hidden'), 3000);
+            }
+
+            // Close toast handlers
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('[data-event="click:closeErrorToast"]')) {
+                    document.getElementById('error-toast').classList.add('hidden');
+                }
+                if (e.target.closest('[data-event="click:closeSuccessToast"]')) {
+                    document.getElementById('success-toast').classList.add('hidden');
+                }
+                if (e.target.closest('[data-event="click:startNewProcess"]')) {
+                    resultsSection.classList.add('hidden');
+                    uploadSection.classList.remove('hidden');
+                }
+            });
+
+            // Download button handlers (demo only)
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('[data-event="click:downloadCSV"]')) {
+                    // TODO: Generate and download CSV file
+                    showSuccessToast('Archivo CSV descargado exitosamente');
+                }
+                if (e.target.closest('[data-event="click:downloadJSON"]')) {
+                    // TODO: Generate and download JSON file
+                    showSuccessToast('Archivo JSON descargado exitosamente');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

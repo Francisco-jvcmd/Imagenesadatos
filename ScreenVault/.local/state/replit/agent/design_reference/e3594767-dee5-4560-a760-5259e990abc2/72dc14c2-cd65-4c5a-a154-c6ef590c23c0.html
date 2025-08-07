@@ -1,0 +1,466 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LENDAN - Extractor OCR de Capturas de Pantalla</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-blue': '#3B82F6',
+                        'brand-success': '#10B981',
+                        'brand-warning': '#F59E0B',
+                        'brand-error': '#EF4444',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-gentle': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-inter min-h-screen">
+    <!-- @COMPONENT: Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900">Extractor OCR</h1>
+                    <span class="ml-3 text-sm text-gray-500">Convierte capturas en datos</span>
+                </div>
+                <!-- LENDAN Logo positioned on the right -->
+                <div class="flex items-center">
+                    <div class="bg-brand-blue text-white px-4 py-2 rounded-lg font-bold text-lg tracking-wide shadow-md">
+                        LENDAN
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: MainContent -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- @COMPONENT: UploadSection -->
+        <div id="uploadSection" class="space-y-8">
+            <!-- Hero Section -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Extrae texto de tus capturas de pantalla</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Sube una imagen o múltiples capturas y obtén los datos en formato CSV o JSON. 
+                    Sin registro necesario, procesamiento rápido y resultados precisos.
+                </p>
+            </div>
+
+            <!-- Upload Options -->
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <!-- Single File Upload -->
+                <!-- @COMPONENT: SingleFileUpload -->
+                <div class="bg-white rounded-xl shadow-lg border-2 border-dashed border-gray-300 hover:border-brand-blue transition-colors duration-300 p-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-image text-2xl text-brand-blue"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Subir una imagen</h3>
+                        <p class="text-gray-600 mb-6">Arrastra y suelta o haz clic para seleccionar una captura de pantalla</p>
+                        
+                        <div class="upload-area cursor-pointer" data-upload-type="single">
+                            <input type="file" id="singleFile" accept=".png,.jpg,.jpeg" class="hidden" data-mock="true">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 hover:border-brand-blue hover:bg-blue-50 transition-all duration-300">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600 font-medium">Formatos soportados: PNG, JPG, JPEG</p>
+                                <p class="text-sm text-gray-500 mt-2">Tamaño máximo: 10MB</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: SingleFileUpload -->
+
+                <!-- Multiple Files Upload -->
+                <!-- @COMPONENT: MultipleFilesUpload -->
+                <div class="bg-white rounded-xl shadow-lg border-2 border-dashed border-gray-300 hover:border-brand-blue transition-colors duration-300 p-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-folder text-2xl text-brand-success"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Subir múltiples imágenes</h3>
+                        <p class="text-gray-600 mb-6">Selecciona una carpeta completa o múltiples archivos</p>
+                        
+                        <div class="upload-area cursor-pointer" data-upload-type="multiple">
+                            <input type="file" id="multipleFiles" accept=".png,.jpg,.jpeg" multiple class="hidden" data-mock="true">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 hover:border-brand-blue hover:bg-blue-50 transition-all duration-300">
+                                <i class="fas fa-images text-3xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600 font-medium">Procesamiento por lotes</p>
+                                <p class="text-sm text-gray-500 mt-2">Hasta 50 archivos simultáneamente</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: MultipleFilesUpload -->
+            </div>
+
+            <!-- Instructions -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <div class="flex items-start">
+                    <i class="fas fa-info-circle text-brand-blue text-xl mt-1 mr-3"></i>
+                    <div>
+                        <h4 class="font-semibold text-blue-900 mb-2">Instrucciones de uso:</h4>
+                        <ul class="text-blue-800 space-y-1 text-sm">
+                            <li>• Asegúrate de que el texto en las capturas sea legible y esté en buen contraste</li>
+                            <li>• Los formatos soportados son PNG, JPG y JPEG</li>
+                            <li>• El procesamiento puede tardar unos segundos dependiendo del tamaño y cantidad de archivos</li>
+                            <li>• Una vez procesado, podrás descargar los datos en formato CSV o JSON</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: UploadSection -->
+
+        <!-- @COMPONENT: ProcessingSection -->
+        <div id="processingSection" class="hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-cog fa-spin text-3xl text-brand-blue"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Procesando imágenes...</h3>
+                    <p class="text-gray-600 mb-6">Extrayendo texto utilizando tecnología OCR avanzada</p>
+                    
+                    <!-- Progress Bar -->
+                    <div class="max-w-md mx-auto">
+                        <div class="flex justify-between text-sm text-gray-600 mb-2">
+                            <span>Progreso</span>
+                            <span data-bind="progress.percentage">67%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-brand-blue h-3 rounded-full transition-all duration-500 ease-out" style="width: 67%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2" data-bind="progress.status">Procesando archivo 2 de 3...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ProcessingSection -->
+
+        <!-- @COMPONENT: ResultsSection -->
+        <div id="resultsSection" class="hidden space-y-6">
+            <!-- Results Header -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-2">Resultados del procesamiento</h3>
+                        <p class="text-gray-600">Se han extraído <span data-bind="results.count" class="font-semibold text-brand-blue">156</span> elementos de texto de <span data-bind="files.processed" class="font-semibold text-brand-blue">3</span> imágenes</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button class="bg-brand-success text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 flex items-center gap-2" data-event="click:downloadCSV">
+                            <i class="fas fa-download"></i>
+                            Descargar CSV
+                        </button>
+                        <button class="bg-brand-blue text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2" data-event="click:downloadJSON">
+                            <i class="fas fa-download"></i>
+                            Descargar JSON
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extracted Data Table -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h4 class="text-lg font-semibold text-gray-900">Datos extraídos</h4>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Archivo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Texto extraído</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confianza</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Palabras</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- @MAP: extractedData.map(item => ( -->
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-image text-gray-400 mr-3"></i>
+                                        <span class="text-sm font-medium text-gray-900" data-bind="item.filename">captura_001.png</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 max-w-md truncate" data-bind="item.extractedText">
+                                        "Facturas pendientes: Cliente A - $1,250.00, Cliente B - $890.50, Cliente C - $2,100.75. Total: $4,241.25"
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" data-bind="item.confidence">
+                                        95%
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-bind="item.wordCount">
+                                    18
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-image text-gray-400 mr-3"></i>
+                                        <span class="text-sm font-medium text-gray-900" data-bind="item.filename">captura_002.png</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 max-w-md truncate" data-bind="item.extractedText">
+                                        "Inventario actualizado: Producto A (150 unidades), Producto B (89 unidades), Producto C (234 unidades)"
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" data-bind="item.confidence">
+                                        92%
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-bind="item.wordCount">
+                                    14
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-image text-gray-400 mr-3"></i>
+                                        <span class="text-sm font-medium text-gray-900" data-bind="item.filename">captura_003.png</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 max-w-md truncate" data-bind="item.extractedText">
+                                        "Contactos importantes: Juan Pérez - (555) 123-4567, María García - maria@email.com, Carlos López - carlos.lopez@empresa.com"
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800" data-bind="item.confidence">
+                                        87%
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-bind="item.wordCount">
+                                    16
+                                </td>
+                            </tr>
+                            <!-- @END_MAP )) -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="bg-gray-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center gap-2" data-event="click:processMore">
+                    <i class="fas fa-plus"></i>
+                    Procesar más imágenes
+                </button>
+                <button class="bg-brand-blue text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2" data-event="click:resetApp">
+                    <i class="fas fa-redo"></i>
+                    Comenzar de nuevo
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ResultsSection -->
+
+        <!-- @COMPONENT: ErrorSection -->
+        <div id="errorSection" class="hidden">
+            <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl mr-3"></i>
+                    <div>
+                        <h4 class="font-semibold text-red-900 mb-2">Error en el procesamiento</h4>
+                        <p class="text-red-800 mb-4" data-bind="error.message">No se pudieron procesar algunos archivos. Verifica que sean imágenes válidas en formato PNG, JPG o JPEG.</p>
+                        <button class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors duration-200" data-event="click:retryProcessing">
+                            Intentar de nuevo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ErrorSection -->
+    </main>
+    <!-- @END_COMPONENT: MainContent -->
+
+    <!-- @COMPONENT: Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="bg-brand-blue text-white px-3 py-1 rounded font-bold text-sm mr-3">
+                            LENDAN
+                        </div>
+                        <span class="text-gray-600">Extractor OCR</span>
+                    </div>
+                    <p class="text-gray-600 text-sm">
+                        Convierte tus capturas de pantalla en datos estructurados de forma rápida y precisa.
+                    </p>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-3">Características</h5>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>• Sin registro requerido</li>
+                        <li>• Procesamiento por lotes</li>
+                        <li>• Exportación CSV/JSON</li>
+                        <li>• Tecnología OCR avanzada</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-3">Soporte</h5>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>• Formatos: PNG, JPG, JPEG</li>
+                        <li>• Tamaño máximo: 10MB por archivo</li>
+                        <li>• Hasta 50 archivos por lote</li>
+                        <li>• Procesamiento en tiempo real</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 mt-8 pt-6 text-center">
+                <p class="text-gray-500 text-sm">
+                    © 2024 LENDAN. Desarrollado para extraer texto de imágenes de forma eficiente.
+                </p>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <!-- @COMPONENT: ToastNotifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2" data-mock="true">
+        <!-- Success Toast Example -->
+        <div class="hidden bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-slide-up" id="successToast">
+            <i class="fas fa-check-circle"></i>
+            <span>Archivos procesados correctamente</span>
+            <button class="ml-auto text-white hover:text-gray-200" data-event="click:closeToast">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Error Toast Example -->
+        <div class="hidden bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-slide-up" id="errorToast">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Error al procesar algunos archivos</span>
+            <button class="ml-auto text-white hover:text-gray-200" data-event="click:closeToast">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: ToastNotifications -->
+
+    <script>
+        (function() {
+            // TODO: Implement OCR processing, file handling, and download functionality
+            
+            // Mock UI interactions for demonstration
+            const uploadAreas = document.querySelectorAll('.upload-area');
+            const sections = {
+                upload: document.getElementById('uploadSection'),
+                processing: document.getElementById('processingSection'),
+                results: document.getElementById('resultsSection'),
+                error: document.getElementById('errorSection')
+            };
+
+            // File upload interaction simulation
+            uploadAreas.forEach(area => {
+                area.addEventListener('click', function() {
+                    const input = this.querySelector('input[type="file"]');
+                    if (input) {
+                        input.click();
+                    }
+                });
+
+                area.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.querySelector('div').classList.add('border-brand-blue', 'bg-blue-50');
+                });
+
+                area.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.querySelector('div').classList.remove('border-brand-blue', 'bg-blue-50');
+                });
+
+                area.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.querySelector('div').classList.remove('border-brand-blue', 'bg-blue-50');
+                    // TODO: Handle file processing
+                    simulateProcessing();
+                });
+            });
+
+            // Simulate processing workflow
+            function simulateProcessing() {
+                showSection('processing');
+                
+                // Simulate progress
+                setTimeout(() => {
+                    showSection('results');
+                }, 3000);
+            }
+
+            function showSection(sectionName) {
+                Object.values(sections).forEach(section => {
+                    if (section) section.classList.add('hidden');
+                });
+                
+                if (sections[sectionName]) {
+                    sections[sectionName].classList.remove('hidden');
+                }
+            }
+
+            // Button event handlers
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('[data-event]');
+                if (!target) return;
+
+                const event = target.dataset.event;
+                
+                switch(event) {
+                    case 'click:downloadCSV':
+                        // TODO: Generate and download CSV file
+                        showToast('successToast');
+                        break;
+                    case 'click:downloadJSON':
+                        // TODO: Generate and download JSON file
+                        showToast('successToast');
+                        break;
+                    case 'click:processMore':
+                    case 'click:resetApp':
+                        showSection('upload');
+                        break;
+                    case 'click:retryProcessing':
+                        simulateProcessing();
+                        break;
+                    case 'click:closeToast':
+                        target.closest('[id$="Toast"]').classList.add('hidden');
+                        break;
+                }
+            });
+
+            function showToast(toastId) {
+                const toast = document.getElementById(toastId);
+                if (toast) {
+                    toast.classList.remove('hidden');
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                    }, 3000);
+                }
+            }
+
+            // Initialize with upload section visible
+            showSection('upload');
+        })();
+    </script>
+</body>
+</html>

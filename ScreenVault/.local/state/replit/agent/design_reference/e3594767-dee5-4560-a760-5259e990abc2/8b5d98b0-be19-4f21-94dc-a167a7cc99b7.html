@@ -1,0 +1,584 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScreenText Extractor - OCR Data Extraction Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1976D2',
+                        secondary: '#424242',
+                        success: '#4CAF50',
+                        warning: '#FF5722',
+                        surface: '#FFFFFF',
+                        background: '#FAFAFA'
+                    },
+                    fontFamily: {
+                        'roboto': ['Roboto', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'material': '0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1)',
+                        'material-lg': '0 4px 8px rgba(0,0,0,0.12), 0 16px 32px rgba(0,0,0,0.12)'
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="font-roboto bg-background min-h-screen">
+    <!-- @COMPONENT: Header -->
+    <header class="bg-surface shadow-material sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                        <i class="fas fa-camera text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-medium text-gray-900">ScreenText Extractor</h1>
+                        <p class="text-sm text-gray-500">OCR Data Extraction Tool</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">No registration required</span>
+                    <div class="w-2 h-2 bg-success rounded-full"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: MainContent -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- @COMPONENT: HeroSection -->
+        <section class="text-center mb-12">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Extract Text from Screenshots</h2>
+                <p class="text-xl text-gray-600 mb-8">Upload your screenshots and get structured data in CSV or JSON format. Fast, secure, and completely free.</p>
+                <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>Support for PNG, JPG, JPEG</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>Batch processing available</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>Instant CSV & JSON export</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: HeroSection -->
+
+        <!-- @COMPONENT: UploadOptions -->
+        <section class="grid md:grid-cols-2 gap-8 mb-12" id="upload-section">
+            
+            <!-- Single Image Upload -->
+            <div class="bg-surface rounded-xl shadow-material p-8 hover:shadow-material-lg transition-shadow duration-300">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-image text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Single Image Upload</h3>
+                    <p class="text-gray-600">Upload one screenshot to extract its text content</p>
+                </div>
+
+                <!-- @FUNCTIONALITY: Single file upload with drag-and-drop support -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer" 
+                     data-implementation="Implement drag-and-drop file upload with FileReader API">
+                    <input type="file" id="single-upload" class="hidden" accept=".png,.jpg,.jpeg" data-event="change:handleSingleUpload">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-lg font-medium text-gray-700 mb-2">Drag and drop your screenshot here</p>
+                    <p class="text-sm text-gray-500 mb-4">or click to browse files</p>
+                    <button type="button" 
+                            class="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                            data-event="click:triggerFileInput">
+                        Choose File
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <p class="text-xs text-gray-500 text-center">
+                        Supported formats: PNG, JPG, JPEG • Max size: 10MB
+                    </p>
+                </div>
+            </div>
+
+            <!-- Batch Upload -->
+            <div class="bg-surface rounded-xl shadow-material p-8 hover:shadow-material-lg transition-shadow duration-300">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-images text-success text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Batch Upload</h3>
+                    <p class="text-gray-600">Upload multiple screenshots for bulk processing</p>
+                </div>
+
+                <!-- @FUNCTIONALITY: Multiple file upload supporting folder selection -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-success transition-colors cursor-pointer"
+                     data-implementation="Implement multiple file upload with webkitdirectory attribute support">
+                    <input type="file" id="batch-upload" class="hidden" accept=".png,.jpg,.jpeg" multiple data-event="change:handleBatchUpload">
+                    <i class="fas fa-folder-open text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-lg font-medium text-gray-700 mb-2">Select multiple files or a folder</p>
+                    <p class="text-sm text-gray-500 mb-4">Process up to 50 images at once</p>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button type="button" 
+                                class="bg-success text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
+                                data-event="click:triggerMultiFileInput">
+                            Select Files
+                        </button>
+                        <button type="button" 
+                                class="bg-gray-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-700 transition-colors"
+                                data-event="click:triggerFolderInput">
+                            Select Folder
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <p class="text-xs text-gray-500 text-center">
+                        Batch limit: 50 files • Total size: 100MB max
+                    </p>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: UploadOptions -->
+
+        <!-- @COMPONENT: ProcessingSection [hidden by default] -->
+        <section class="hidden bg-surface rounded-xl shadow-material p-8 mb-12" id="processing-section">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-cog fa-spin text-warning text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-semibold text-gray-900 mb-2">Processing Your Images</h3>
+                <p class="text-gray-600">Extracting text using advanced OCR technology...</p>
+            </div>
+
+            <!-- @STATE: processingProgress:number = 0, currentFile:string = "", processedCount:number = 0, totalCount:number = 0 -->
+            <div class="max-w-2xl mx-auto">
+                <!-- Overall Progress -->
+                <div class="mb-6">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Overall Progress</span>
+                        <span data-bind="processingProgress">65%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-primary h-3 rounded-full transition-all duration-300" style="width: 65%" data-bind="processingProgress"></div>
+                    </div>
+                </div>
+
+                <!-- Current File -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-file-image text-gray-400"></i>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate" data-bind="currentFile">screenshot_2024_01_15.png</p>
+                            <p class="text-xs text-gray-500">Extracting text content...</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-spinner fa-spin text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Files Counter -->
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">
+                        Processing <span class="font-semibold" data-bind="processedCount">13</span> of <span class="font-semibold" data-bind="totalCount">20</span> files
+                    </p>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: ProcessingSection -->
+
+        <!-- @COMPONENT: ResultsSection [hidden by default] -->
+        <section class="hidden" id="results-section">
+            <!-- Results Header -->
+            <div class="bg-surface rounded-xl shadow-material p-8 mb-8">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-2">Extraction Complete!</h3>
+                        <p class="text-gray-600">
+                            Successfully processed <span class="font-semibold text-success" data-bind="totalProcessed">20</span> images 
+                            and extracted <span class="font-semibold text-success" data-bind="totalTextBlocks">156</span> text blocks
+                        </p>
+                    </div>
+                    <div class="mt-6 md:mt-0 flex flex-col sm:flex-row gap-3">
+                        <button class="bg-success text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors flex items-center space-x-2"
+                                data-event="click:downloadCSV">
+                            <i class="fas fa-download"></i>
+                            <span>Download CSV</span>
+                        </button>
+                        <button class="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                                data-event="click:downloadJSON">
+                            <i class="fas fa-download"></i>
+                            <span>Download JSON</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Preview Table -->
+            <div class="bg-surface rounded-xl shadow-material overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h4 class="text-lg font-semibold text-gray-900">Extracted Data Preview</h4>
+                    <p class="text-sm text-gray-600">First 10 entries • Click column headers to sort</p>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <!-- @MAP: extractedData.slice(0, 10).map(item => ( -->
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                    data-event="click:sortBy:filename">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Filename</span>
+                                        <i class="fas fa-sort text-gray-400"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                    data-event="click:sortBy:textBlocks">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Text Blocks</span>
+                                        <i class="fas fa-sort text-gray-400"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                    data-event="click:sortBy:confidence">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Confidence</span>
+                                        <i class="fas fa-sort text-gray-400"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Extracted Text Preview
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" data-mock="true">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-file-image text-gray-400"></i>
+                                        <span class="text-sm font-medium text-gray-900" data-bind="item.filename">dashboard_metrics.png</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary" data-bind="item.textBlocks">
+                                        12 blocks
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-success h-2 rounded-full" style="width: 94%" data-bind="item.confidence"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-600" data-bind="item.confidence">94%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-sm text-gray-900 truncate max-w-xs" data-bind="item.preview">
+                                        Total Revenue: $234,567 Monthly Active Users: 12,345 Conversion Rate: 3.4%...
+                                    </p>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <button class="text-primary hover:text-blue-700" data-event="click:viewDetails:item.id">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-file-image text-gray-400"></i>
+                                        <span class="text-sm font-medium text-gray-900">invoice_2024_001.jpg</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                                        8 blocks
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-success h-2 rounded-full" style="width: 87%"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-600">87%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-sm text-gray-900 truncate max-w-xs">
+                                        Invoice #INV-2024-001 Date: January 15, 2024 Amount: $1,234.56...
+                                    </p>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <button class="text-primary hover:text-blue-700">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-file-image text-gray-400"></i>
+                                        <span class="text-sm font-medium text-gray-900">email_screenshot.png</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                                        15 blocks
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-success h-2 rounded-full" style="width: 91%"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-600">91%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-sm text-gray-900 truncate max-w-xs">
+                                        From: john@company.com Subject: Q4 Results Meeting Time: 2:00 PM...
+                                    </p>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <button class="text-primary hover:text-blue-700">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- @END_MAP )) -->
+                </div>
+
+                <!-- Table Footer -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-600">
+                            Showing <span class="font-semibold">1-10</span> of <span class="font-semibold" data-bind="totalResults">156</span> results
+                        </p>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded text-gray-700 hover:bg-gray-100" 
+                                    data-event="click:previousPage">
+                                Previous
+                            </button>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded text-gray-700 hover:bg-gray-100" 
+                                    data-event="click:nextPage">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Processing Button -->
+            <div class="mt-8 text-center">
+                <button class="bg-gray-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-gray-700 transition-colors"
+                        data-event="click:startNewProcessing">
+                    Process More Images
+                </button>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: ResultsSection -->
+
+        <!-- @COMPONENT: FeaturesSection -->
+        <section class="grid md:grid-cols-3 gap-8 mt-16">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-bolt text-primary text-2xl"></i>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-2">Lightning Fast</h4>
+                <p class="text-gray-600">Advanced OCR technology processes images in seconds, not minutes.</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-success text-2xl"></i>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-2">Secure & Private</h4>
+                <p class="text-gray-600">Your images are processed locally and never stored on our servers.</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-download text-warning text-2xl"></i>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-2">Export Ready</h4>
+                <p class="text-gray-600">Download your data in CSV or JSON format for easy integration.</p>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: FeaturesSection -->
+
+    </main>
+    <!-- @END_COMPONENT: MainContent -->
+
+    <!-- @COMPONENT: Footer -->
+    <footer class="bg-secondary text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                            <i class="fas fa-camera text-white"></i>
+                        </div>
+                        <h5 class="text-lg font-semibold">ScreenText Extractor</h5>
+                    </div>
+                    <p class="text-gray-300 mb-4">
+                        Free OCR tool for extracting text from screenshots. Fast, secure, and easy to use.
+                    </p>
+                    <div class="flex space-x-4">
+                        <i class="fab fa-github text-gray-400 hover:text-white cursor-pointer"></i>
+                        <i class="fab fa-twitter text-gray-400 hover:text-white cursor-pointer"></i>
+                    </div>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold mb-4">Features</h6>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>Single Image Upload</li>
+                        <li>Batch Processing</li>
+                        <li>CSV Export</li>
+                        <li>JSON Export</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold mb-4">Support</h6>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>Help Center</li>
+                        <li>API Documentation</li>
+                        <li>Contact Us</li>
+                        <li>Privacy Policy</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-600 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 ScreenText Extractor. Made with ❤️ for productivity.</p>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <!-- @COMPONENT: JavaScript -->
+    <script>
+        (function() {
+            // TODO: Implement OCR processing logic using Tesseract.js or similar
+            // TODO: Implement file upload handling with FileReader API
+            // TODO: Implement progress tracking and UI state management
+            // TODO: Implement CSV and JSON export functionality
+            
+            // UI State Management
+            const sections = {
+                upload: document.getElementById('upload-section'),
+                processing: document.getElementById('processing-section'),
+                results: document.getElementById('results-section')
+            };
+
+            // Mock functions for demonstration
+            function showProcessing() {
+                sections.upload.classList.add('hidden');
+                sections.processing.classList.remove('hidden');
+                sections.results.classList.add('hidden');
+                
+                // Mock progress animation
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        setTimeout(showResults, 1000);
+                    }
+                    // Update progress bar and percentage
+                }, 500);
+            }
+
+            function showResults() {
+                sections.processing.classList.add('hidden');
+                sections.results.classList.remove('hidden');
+            }
+
+            function resetToUpload() {
+                sections.results.classList.add('hidden');
+                sections.processing.classList.add('hidden');
+                sections.upload.classList.remove('hidden');
+            }
+
+            // Event listeners for file inputs
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('[data-event*="triggerFileInput"]')) {
+                    document.getElementById('single-upload').click();
+                }
+                
+                if (e.target.closest('[data-event*="triggerMultiFileInput"]')) {
+                    document.getElementById('batch-upload').click();
+                }
+                
+                if (e.target.closest('[data-event*="startNewProcessing"]')) {
+                    resetToUpload();
+                }
+            });
+
+            // Mock file upload handling
+            document.getElementById('single-upload').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    setTimeout(showProcessing, 500);
+                }
+            });
+
+            document.getElementById('batch-upload').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    setTimeout(showProcessing, 500);
+                }
+            });
+
+            // Drag and drop functionality
+            const dropZones = document.querySelectorAll('[data-implementation*="drag-and-drop"]');
+            
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('border-primary', 'bg-primary/5');
+                });
+                
+                zone.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('border-primary', 'bg-primary/5');
+                });
+                
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('border-primary', 'bg-primary/5');
+                    
+                    const files = Array.from(e.dataTransfer.files);
+                    const validFiles = files.filter(file => 
+                        file.type.match(/^image\/(png|jpe?g)$/i)
+                    );
+                    
+                    if (validFiles.length > 0) {
+                        setTimeout(showProcessing, 500);
+                    }
+                });
+            });
+        })();
+    </script>
+    <!-- @END_COMPONENT: JavaScript -->
+</body>
+</html>
